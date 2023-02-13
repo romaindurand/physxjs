@@ -1,0 +1,17 @@
+{
+  "name": "physxjs",
+  "version": "1.0.0",
+  "description": "A simple verlet physics engine written in javascript",
+  "main": "index.js",
+  "scripts": {
+    "demo": "parcel src/index.html",
+    "format": "prettier --write src/**/*.{json,ts,css,html}"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "parcel": "^2.8.3",
+    "prettier": "^2.8.4"
+  }
+}
