@@ -4,7 +4,7 @@
   "description": "A simple verlet physics engine written in javascript",
   "main": "index.js",
   "scripts": {
-    "demo": "parcel src/index.html",
+    "demo": "parcel src/index.html --open ",
     "format": "prettier --write src/**/*.{json,ts,css,html}"
   },
   "keywords": [],
