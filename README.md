@@ -21,6 +21,7 @@ npm run demo
 
 ## TODO
 
-- [ ] spatial partitionning
+- [x] spatial partitioning
+- [ ] allow custom grid size for spacial partitioning
 - [ ] compute collisions in an other thread using comlink
 - [ ] multithreading

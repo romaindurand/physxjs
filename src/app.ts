@@ -25,11 +25,7 @@ function main() {
 
   const objects = []
 
-  const solver = new Solver(
-    objects,
-    true,
-    new Vec2(canvas.width, canvas.height),
-  )
+  const solver = new Solver(objects, true, new Vec2(900, 900))
 
   window.setInterval(() => {
     if (!shooting) return
@@ -38,7 +34,7 @@ function main() {
       new VerletObject(
         constraint_position.moveY(-constraint_radius + 50),
         new Vec2((direction - 0.5) * 2, 0.5),
-        Math.random() * 10 + 8,
+        Math.random() * 13 + 5,
         `hsl(${Math.round(direction * 320) + 20}, 100%, 55%)`,
       ),
     )
@@ -50,7 +46,7 @@ function main() {
     const dt = now - lastTime
     lastTime = now
 
-    solver.update(dt)
+    const gridSize = solver.update(dt)
     const endCompute = performance.now()
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -69,6 +65,7 @@ function main() {
     } else {
       slowFrames = 0
     }
+    drawGrid(ctx, gridSize, solver.size)
 
     if (useRAF) requestAnimationFrame(loop)
     else window.setTimeout(loop, 16)
@@ -76,4 +73,29 @@ function main() {
 
   if (useRAF) requestAnimationFrame(loop)
   else loop()
+}
+
+function drawGrid(
+  ctx: CanvasRenderingContext2D,
+  rowsColsCount: number,
+  size: Vec2,
+) {
+  if (rowsColsCount === 0) return
+  const [rows, cols] = [rowsColsCount, rowsColsCount]
+  const { x: width, y: height } = size
+  const rowHeight = height / rows
+  const colWidth = width / cols
+  for (let i = 0; i < rows; i++) {
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'
+    ctx.beginPath()
+    ctx.moveTo(0, i * rowHeight)
+    ctx.lineTo(width, i * rowHeight)
+    ctx.stroke()
+  }
+  for (let i = 0; i < cols; i++) {
+    ctx.beginPath()
+    ctx.moveTo(i * colWidth, 0)
+    ctx.lineTo(i * colWidth, height)
+    ctx.stroke()
+  }
 }

@@ -1,6 +1,6 @@
 import { Vec2 } from './vec2'
 
-const sub_steps = 8
+const sub_steps = 10
 export const constraint_radius = 400
 export const constraint_position = new Vec2(450, 450)
 
@@ -62,12 +62,14 @@ export class Solver {
 
   update(dt: number) {
     const sub_dt = dt / sub_steps
+    let gridSize = 0
     for (let i = 0; i < sub_steps; i++) {
       this.applyGravity()
       this.applyConstraints()
-      this.solveCollisions()
+      gridSize = this.solveCollisions()
       this.updatePositions(sub_dt)
     }
+    return gridSize
   }
 
   updatePositions(dt: number) {
@@ -102,7 +104,7 @@ export class Solver {
   solveCollisions() {
     if (!this.useSpatialPartitioning) {
       solveCollisionsForObjects(this.objects)
-      return
+      return 0
     }
 
     const gridSize = Math.floor(Math.sqrt(this.objects.length))
@@ -126,6 +128,7 @@ export class Solver {
         solveCollisionsForObjects(objects)
       }
     }
+    return gridSize
   }
 }
 
