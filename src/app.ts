@@ -25,7 +25,11 @@ function main() {
 
   const objects = []
 
-  const solver = new Solver(objects)
+  const solver = new Solver(
+    objects,
+    true,
+    new Vec2(canvas.width, canvas.height),
+  )
 
   window.setInterval(() => {
     if (!shooting) return

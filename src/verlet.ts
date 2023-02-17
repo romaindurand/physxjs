@@ -42,10 +42,18 @@ export class VerletObject {
 export class Solver {
   gravity: Vec2 = new Vec2(0, 0.002)
   // gravity: Vec2 = { x: 0, y: 0.0002 };
-  objects: VerletObject[] = []
+  objects: VerletObject[]
+  size: Vec2
+  useSpatialPartitioning: boolean
 
-  constructor(objects: VerletObject[] = []) {
+  constructor(
+    objects: VerletObject[] = [],
+    useSpatialPartitioning: boolean = true,
+    size: Vec2 = new Vec2(100, 100),
+  ) {
     this.objects = objects
+    this.size = size
+    this.useSpatialPartitioning = useSpatialPartitioning
   }
 
   addObject(object: VerletObject) {
@@ -92,31 +100,76 @@ export class Solver {
   }
 
   solveCollisions() {
-    for (let i = 0; i < this.objects.length; i++) {
-      const object_1 = this.objects[i]
-      for (let k = i + 1; k < this.objects.length; k++) {
-        const object_2 = this.objects[k]
-        const collision_axis = Vec2.diff(
-          object_1.position_current,
-          object_2.position_current,
-        )
-        const distance = collision_axis.getLength()
-        const min_distance = object_1.radius + object_2.radius
-        if (distance < min_distance) {
-          const direction = collision_axis.multiply(1 / distance)
-          const delta = min_distance - distance
-          const new_position_1 = Vec2.add(
-            object_1.position_current,
-            direction.multiply(delta / 2),
-          )
-          const new_position_2 = Vec2.add(
-            object_2.position_current,
-            direction.multiply(-delta / 2),
-          )
-          object_1.position_current = new_position_1
-          object_2.position_current = new_position_2
+    if (!this.useSpatialPartitioning) {
+      solveCollisionsForObjects(this.objects)
+      return
+    }
+
+    const gridSize = Math.floor(Math.sqrt(this.objects.length))
+    const cells = Array.from(Array(gridSize), () => new Array(gridSize))
+    for (const object of this.objects) {
+      const x = Math.floor((object.position_current.x / this.size.x) * gridSize)
+      const y = Math.floor((object.position_current.y / this.size.y) * gridSize)
+      if (cells[x][y] === undefined) {
+        cells[x][y] = []
+      }
+      cells[x][y].push(object)
+    }
+
+    for (let x = 0; x < gridSize; x++) {
+      for (let y = 0; y < gridSize; y++) {
+        const cell = cells[x][y]
+        if (cell === undefined) {
+          continue
         }
+        const objects = getAdjacentCellsObjects(cells, x, y)
+        solveCollisionsForObjects(objects)
       }
     }
   }
+}
+
+function solveCollisionsForObjects(objects: VerletObject[]) {
+  for (let i = 0; i < objects.length; i++) {
+    const object_1 = objects[i]
+    for (let k = i + 1; k < objects.length; k++) {
+      const object_2 = objects[k]
+      const collision_axis = Vec2.diff(
+        object_1.position_current,
+        object_2.position_current,
+      )
+      const distance = collision_axis.getLength()
+      const min_distance = object_1.radius + object_2.radius
+      if (distance < min_distance) {
+        const direction = collision_axis.multiply(1 / distance)
+        const delta = min_distance - distance
+        const new_position_1 = Vec2.add(
+          object_1.position_current,
+          direction.multiply(delta / 2),
+        )
+        const new_position_2 = Vec2.add(
+          object_2.position_current,
+          direction.multiply(-delta / 2),
+        )
+        object_1.position_current = new_position_1
+        object_2.position_current = new_position_2
+      }
+    }
+  }
+}
+
+function getAdjacentCellsObjects(
+  cells: VerletObject[][][],
+  x: number,
+  y: number,
+): VerletObject[] {
+  const content: VerletObject[] = []
+  for (let i = x - 1; i <= x + 1; i++) {
+    for (let k = y - 1; k <= y + 1; k++) {
+      if (cells[i] !== undefined && cells[i][k] !== undefined) {
+        content.push(...cells[i][k])
+      }
+    }
+  }
+  return content
 }

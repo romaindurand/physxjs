@@ -1,8 +1,12 @@
 {
   "name": "physxjs",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "A simple verlet physics engine written in javascript",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "github:romaindurand/physxjs"
+  },
   "scripts": {
     "demo": "parcel src/index.html --open ",
     "format": "prettier --write src/**/*.{json,ts,css,html}"
